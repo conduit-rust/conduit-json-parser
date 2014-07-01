@@ -21,13 +21,13 @@ trait JsonDecodable : Decodable<json::Decoder, json::DecoderError> {}
 impl<T: Decodable<json::Decoder, json::DecoderError>> JsonDecodable for T {}
 
 impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
-    fn before<'a>(&self, req: &'a mut Request) -> Result<&'a mut Request, Box<Show>> {
+    fn before<'a>(&self, req: &'a mut Request) -> Result<(), Box<Show>> {
         let json: T = try!(decode::<T>(req.body()).map_err(|err| {
             box format!("Couldn't parse JSON: {}", show(err)) as Box<Show>
         }));
 
         req.mut_extensions().insert("body-params.json", box json as Box<Any>);
-        Ok(req)
+        Ok(())
     }
 }
 
@@ -91,7 +91,7 @@ mod tests {
         let mut req = conduit_test::MockRequest::new(conduit::Get, "/");
         req.with_body(r#"{ "name": "Alex Crichton", "location": "San Francisco" }"#);
 
-        let mut middleware = MiddlewareBuilder::new(box handler);
+        let mut middleware = MiddlewareBuilder::new(handler);
         middleware.add(BodyReader::<Person>);
 
         let mut res = middleware.call(&mut req).ok().expect("No response");
