@@ -1,20 +1,12 @@
 [package]
 
-name = "conduit-body-parser"
+name = "conduit-json-parser"
 version = "0.5.0"
 authors = ["wycats@gmail.com"]
-
-[[lib]]
-
-name = "conduit-body-parser"
 
 [dependencies.conduit]
 
 git = "https://github.com/conduit-rust/conduit.git"
-
-[dependencies.conduit-test]
-
-git = "https://github.com/conduit-rust/conduit-test.git"
 
 [dependencies.conduit-middleware]
 
@@ -23,3 +15,7 @@ git = "https://github.com/conduit-rust/conduit-middleware.git"
 [dependencies.conduit-utils]
 
 git = "https://github.com/conduit-rust/conduit-utils.git"
+
+[dev-dependencies.conduit-test]
+
+git = "https://github.com/conduit-rust/conduit-test.git"
