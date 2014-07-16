@@ -52,7 +52,7 @@ fn decode<T: JsonDecodable + 'static>(reader: &mut Reader) -> Result<T, Box<Show
     Decodable::decode(&mut decoder).map_err(|e| box e as Box<Show>)
 }
 
-pub fn json_params<'a, T: JsonDecodable + 'static>(req: &'a mut Request) -> Option<&'a T> {
+pub fn json_params<'a, T: JsonDecodable + 'static>(req: &'a Request) -> Option<&'a T> {
     req.extensions().find(&"body-params.json")
         .and_then(|s| s.as_ref::<T>())
 }
@@ -77,7 +77,7 @@ mod tests {
 
     fn handler(req: &mut Request) -> Result<Response, ()> {
         let person = json_params::<Person>(req);
-        let out = person.map(|p| json::Encoder::str_encode(p)).expect("No JSON");
+        let out = person.map(|p| json::encode(p)).expect("No JSON");
 
         Ok(Response {
             status: (200, "OK"),
@@ -97,8 +97,8 @@ mod tests {
         let mut res = middleware.call(&mut req).ok().expect("No response");
         let person = super::decode::<Person>(res.body).ok().expect("No JSON response");
         assert_eq!(person, Person {
-            name: "Alex Crichton".to_str(),
-            location: "San Francisco".to_str()
+            name: "Alex Crichton".to_string(),
+            location: "San Francisco".to_string()
         });
     }
 }
