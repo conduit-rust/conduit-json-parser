@@ -54,7 +54,7 @@ fn decode<T: JsonDecodable + 'static>(reader: &mut Reader) -> Result<T, Box<Show
 
 pub fn json_params<'a, T: JsonDecodable + 'static>(req: &'a Request) -> Option<&'a T> {
     req.extensions().find(&"body-params.json")
-        .and_then(|s| s.as_ref::<T>())
+        .and_then(|s| s.downcast_ref::<T>())
 }
 
 #[cfg(test)]
