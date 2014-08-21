@@ -8,7 +8,6 @@ extern crate utils = "conduit-utils";
 
 use std::fmt;
 use std::fmt::{Show, Formatter};
-use std::any::{Any, AnyRefExt};
 use serialize::{Decodable, json};
 
 use conduit::Request;
@@ -26,7 +25,7 @@ impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
             box format!("Couldn't parse JSON: {}", show(err)) as Box<Show>
         }));
 
-        req.mut_extensions().insert("body-params.json", box json as Box<Any>);
+        req.mut_extensions().insert(json);
         Ok(())
     }
 }
@@ -53,14 +52,15 @@ fn decode<T: JsonDecodable + 'static>(reader: &mut Reader) -> Result<T, Box<Show
 }
 
 pub fn json_params<'a, T: JsonDecodable + 'static>(req: &'a Request) -> Option<&'a T> {
-    req.extensions().find(&"body-params.json")
-        .and_then(|s| s.downcast_ref::<T>())
+    req.extensions().find::<T>()
 }
 
 #[cfg(test)]
 mod tests {
     extern crate conduit_test = "conduit-test";
-    use super::*;
+
+    use {json_params, BodyReader};
+
     use std::collections::HashMap;
     use std::io::MemReader;
     use serialize::json;
