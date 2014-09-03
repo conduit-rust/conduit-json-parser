@@ -20,7 +20,7 @@ trait JsonDecodable : Decodable<json::Decoder, json::DecoderError> {}
 impl<T: Decodable<json::Decoder, json::DecoderError>> JsonDecodable for T {}
 
 impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
-    fn before(&self, req: &mut Request) -> Result<(), Box<Show>> {
+    fn before(&self, req: &mut Request) -> Result<(), Box<Show + 'static>> {
         let json: T = try!(decode::<T>(req.body()).map_err(|err| {
             box format!("Couldn't parse JSON: {}", show(err)) as Box<Show>
         }));
@@ -32,7 +32,7 @@ impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
 
 // Hack around the lack of impl Show for Box<Show>
 struct Shower<'a> {
-    inner: &'a Show
+    inner: &'a Show + 'a
 }
 
 impl<'a> Show for Shower<'a> {
