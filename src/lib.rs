@@ -22,7 +22,7 @@ impl<T: Decodable<json::Decoder, json::DecoderError>> JsonDecodable for T {}
 impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
     fn before(&self, req: &mut Request) -> Result<(), Box<Show + 'static>> {
         let json: T = try!(decode::<T>(req.body()).map_err(|err| {
-            box format!("Couldn't parse JSON: {}", show(err)) as Box<Show>
+            box format!("Couldn't parse JSON: {}", show(&*err)) as Box<Show>
         }));
 
         req.mut_extensions().insert(json);
@@ -95,7 +95,7 @@ mod tests {
         middleware.add(BodyReader::<Person>);
 
         let mut res = middleware.call(&mut req).ok().expect("No response");
-        let person = super::decode::<Person>(res.body).ok().expect("No JSON response");
+        let person = super::decode::<Person>(&mut *res.body).ok().expect("No JSON response");
         assert_eq!(person, Person {
             name: "Alex Crichton".to_string(),
             location: "San Francisco".to_string()
