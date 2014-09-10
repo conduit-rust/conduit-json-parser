@@ -3,8 +3,8 @@
 extern crate serialize;
 
 extern crate conduit;
-extern crate middleware = "conduit-middleware";
-extern crate utils = "conduit-utils";
+extern crate "conduit-middleware" as middleware;
+extern crate "conduit-utils" as utils;
 
 use std::fmt;
 use std::fmt::{Show, Formatter};
@@ -57,7 +57,7 @@ pub fn json_params<'a, T: JsonDecodable + 'static>(req: &'a Request) -> Option<&
 
 #[cfg(test)]
 mod tests {
-    extern crate conduit_test = "conduit-test";
+    extern crate "conduit-test" as conduit_test;
 
     use {json_params, BodyReader};
 
