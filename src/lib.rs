@@ -16,7 +16,7 @@ use middleware::Middleware;
 
 pub struct BodyReader<T>;
 
-trait JsonDecodable : Decodable<json::Decoder, json::DecoderError> {}
+pub trait JsonDecodable : Decodable<json::Decoder, json::DecoderError> {}
 impl<T: Decodable<json::Decoder, json::DecoderError>> JsonDecodable for T {}
 
 impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
