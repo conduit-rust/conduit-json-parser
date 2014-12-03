@@ -32,7 +32,7 @@ impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
 
 // Hack around the lack of impl Show for Box<Show>
 struct Shower<'a> {
-    inner: &'a Show + 'a
+    inner: &'a (Show + 'a),
 }
 
 impl<'a> Show for Shower<'a> {
@@ -65,8 +65,7 @@ mod tests {
     use std::io::MemReader;
     use serialize::json;
 
-    use conduit;
-    use conduit::{Request, Response, Handler};
+    use conduit::{Request, Response, Handler, Method};
     use middleware::MiddlewareBuilder;
 
     #[deriving(PartialEq, Decodable, Encodable, Show)]
@@ -88,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_body_params() {
-        let mut req = conduit_test::MockRequest::new(conduit::Get, "/");
+        let mut req = conduit_test::MockRequest::new(Method::Get, "/");
         req.with_body(r#"{ "name": "Alex Crichton", "location": "San Francisco" }"#);
 
         let mut middleware = MiddlewareBuilder::new(handler);
