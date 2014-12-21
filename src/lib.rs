@@ -22,7 +22,8 @@ impl<T: Decodable<json::Decoder, json::DecoderError>> JsonDecodable for T {}
 impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
     fn before(&self, req: &mut Request) -> Result<(), Box<Show + 'static>> {
         let json: T = try!(decode::<T>(req.body()).map_err(|err| {
-            box format!("Couldn't parse JSON: {}", show(&*err)) as Box<Show>
+            let s: Box<String> = box format!("Couldn't parse JSON: {}", show(&*err));
+            s as Box<Show + 'static>
         }));
 
         req.mut_extensions().insert(json);
