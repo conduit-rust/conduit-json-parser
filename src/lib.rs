@@ -1,6 +1,7 @@
 #![feature(globs)]
+#![cfg_attr(test, deny(warnings))]
 
-extern crate serialize;
+extern crate "rustc-serialize" as rustc_serialize;
 
 extern crate conduit;
 extern crate "conduit-middleware" as middleware;
@@ -8,7 +9,7 @@ extern crate "conduit-utils" as utils;
 
 use std::fmt;
 use std::fmt::{Show, Formatter};
-use serialize::{Decodable, json};
+use rustc_serialize::{Decodable, json};
 
 use conduit::Request;
 use utils::RequestDelegator;
@@ -64,12 +65,12 @@ mod tests {
 
     use std::collections::HashMap;
     use std::io::MemReader;
-    use serialize::json;
+    use rustc_serialize::json;
 
     use conduit::{Request, Response, Handler, Method};
     use middleware::MiddlewareBuilder;
 
-    #[deriving(PartialEq, Decodable, Encodable, Show)]
+    #[deriving(PartialEq, RustcDecodable, RustcEncodable, Show)]
     struct Person {
         name: String,
         location: String
