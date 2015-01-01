@@ -9,7 +9,8 @@ extern crate "conduit-utils" as utils;
 
 use std::fmt;
 use std::fmt::{Show, Formatter};
-use rustc_serialize::{Decodable, json};
+use rustc_serialize::Decodable;
+use rustc_serialize::json::{mod, Json};
 
 use conduit::Request;
 use utils::RequestDelegator;
@@ -48,7 +49,7 @@ fn show<'a>(s: &'a Show) -> Shower<'a> {
 }
 
 fn decode<T: JsonDecodable + 'static>(reader: &mut Reader) -> Result<T, Box<Show>> {
-    let j = try!(json::from_reader(reader).map_err(|e| box e as Box<Show>));
+    let j = try!(Json::from_reader(reader).map_err(|e| box e as Box<Show>));
     let mut decoder = json::Decoder::new(j);
     Decodable::decode(&mut decoder).map_err(|e| box e as Box<Show>)
 }
