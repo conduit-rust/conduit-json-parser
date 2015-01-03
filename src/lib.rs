@@ -1,4 +1,4 @@
-#![feature(globs)]
+#![feature(globs, old_orphan_check)]
 #![cfg_attr(test, deny(warnings))]
 
 extern crate "rustc-serialize" as rustc_serialize;
@@ -10,7 +10,7 @@ extern crate "conduit-utils" as utils;
 use std::fmt;
 use std::fmt::{Show, Formatter};
 use rustc_serialize::Decodable;
-use rustc_serialize::json::{mod, Json};
+use rustc_serialize::json::{self, Json};
 
 use conduit::Request;
 use utils::RequestDelegator;
@@ -71,7 +71,7 @@ mod tests {
     use conduit::{Request, Response, Handler, Method};
     use middleware::MiddlewareBuilder;
 
-    #[deriving(PartialEq, RustcDecodable, RustcEncodable, Show)]
+    #[derive(PartialEq, RustcDecodable, RustcEncodable, Show)]
     struct Person {
         name: String,
         location: String
