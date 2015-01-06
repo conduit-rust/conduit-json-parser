@@ -1,4 +1,4 @@
-#![feature(globs, old_orphan_check)]
+#![feature(globs)]
 #![cfg_attr(test, deny(warnings))]
 
 extern crate "rustc-serialize" as rustc_serialize;
@@ -18,10 +18,7 @@ use middleware::Middleware;
 
 pub struct BodyReader<T>;
 
-pub trait JsonDecodable : Decodable<json::Decoder, json::DecoderError> {}
-impl<T: Decodable<json::Decoder, json::DecoderError>> JsonDecodable for T {}
-
-impl<T: JsonDecodable + 'static> Middleware for BodyReader<T> {
+impl<T: Decodable + 'static> Middleware for BodyReader<T> {
     fn before(&self, req: &mut Request) -> Result<(), Box<Show + 'static>> {
         let json: T = try!(decode::<T>(req.body()).map_err(|err| {
             let s: Box<String> = box format!("Couldn't parse JSON: {}", show(&*err));
@@ -48,13 +45,13 @@ fn show<'a>(s: &'a Show) -> Shower<'a> {
     Shower { inner: s }
 }
 
-fn decode<T: JsonDecodable + 'static>(reader: &mut Reader) -> Result<T, Box<Show>> {
+fn decode<T: Decodable + 'static>(reader: &mut Reader) -> Result<T, Box<Show>> {
     let j = try!(Json::from_reader(reader).map_err(|e| box e as Box<Show>));
     let mut decoder = json::Decoder::new(j);
     Decodable::decode(&mut decoder).map_err(|e| box e as Box<Show>)
 }
 
-pub fn json_params<'a, T: JsonDecodable + 'static>(req: &'a Request) -> Option<&'a T> {
+pub fn json_params<'a, T: Decodable + 'static>(req: &'a Request) -> Option<&'a T> {
     req.extensions().find::<T>()
 }
 
