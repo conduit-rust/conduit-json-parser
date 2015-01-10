@@ -1,5 +1,5 @@
-#![feature(globs)]
 #![cfg_attr(test, deny(warnings))]
+#![cfg_attr(test, allow(unstable))]
 
 extern crate "rustc-serialize" as rustc_serialize;
 
@@ -7,8 +7,7 @@ extern crate conduit;
 extern crate "conduit-middleware" as middleware;
 extern crate "conduit-utils" as utils;
 
-use std::fmt;
-use std::fmt::{Show, Formatter};
+use std::error::Error;
 use rustc_serialize::Decodable;
 use rustc_serialize::json::{self, Json};
 
@@ -19,36 +18,18 @@ use middleware::Middleware;
 pub struct BodyReader<T>;
 
 impl<T: Decodable + 'static> Middleware for BodyReader<T> {
-    fn before(&self, req: &mut Request) -> Result<(), Box<Show + 'static>> {
-        let json: T = try!(decode::<T>(req.body()).map_err(|err| {
-            let s: Box<String> = box format!("Couldn't parse JSON: {}", show(&*err));
-            s as Box<Show + 'static>
-        }));
+    fn before(&self, req: &mut Request) -> Result<(), Box<Error>> {
+        let json: T = try!(decode::<T>(req.body()));
 
         req.mut_extensions().insert(json);
         Ok(())
     }
 }
 
-// Hack around the lack of impl Show for Box<Show>
-struct Shower<'a> {
-    inner: &'a (Show + 'a),
-}
-
-impl<'a> Show for Shower<'a> {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        self.inner.fmt(f)
-    }
-}
-
-fn show<'a>(s: &'a Show) -> Shower<'a> {
-    Shower { inner: s }
-}
-
-fn decode<T: Decodable + 'static>(reader: &mut Reader) -> Result<T, Box<Show>> {
-    let j = try!(Json::from_reader(reader).map_err(|e| box e as Box<Show>));
+fn decode<T: Decodable>(reader: &mut Reader) -> Result<T, Box<Error>> {
+    let j = try!(Json::from_reader(reader).map_err(|e| Box::new(e) as Box<Error>));
     let mut decoder = json::Decoder::new(j);
-    Decodable::decode(&mut decoder).map_err(|e| box e as Box<Show>)
+    Decodable::decode(&mut decoder).map_err(|e| Box::new(e) as Box<Error>)
 }
 
 pub fn json_params<'a, T: Decodable + 'static>(req: &'a Request) -> Option<&'a T> {
@@ -62,6 +43,7 @@ mod tests {
     use {json_params, BodyReader};
 
     use std::collections::HashMap;
+    use std::error::Error;
     use std::io::MemReader;
     use rustc_serialize::json;
 
@@ -74,21 +56,21 @@ mod tests {
         location: String
     }
 
-    fn handler(req: &mut Request) -> Result<Response, ()> {
+    fn handler(req: &mut Request) -> Result<Response, Box<Error>> {
         let person = json_params::<Person>(req);
         let out = person.map(|p| json::encode(p)).expect("No JSON");
 
         Ok(Response {
             status: (200, "OK"),
             headers: HashMap::new(),
-            body: box MemReader::new(out.into_bytes()) as Box<Reader + Send>
+            body: Box::new(MemReader::new(out.into_bytes()))
         })
     }
 
     #[test]
     fn test_body_params() {
         let mut req = conduit_test::MockRequest::new(Method::Get, "/");
-        req.with_body(r#"{ "name": "Alex Crichton", "location": "San Francisco" }"#);
+        req.with_body(br#"{ "name": "Alex Crichton", "location": "San Francisco" }"#);
 
         let mut middleware = MiddlewareBuilder::new(handler);
         middleware.add(BodyReader::<Person>);
