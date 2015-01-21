@@ -18,7 +18,7 @@ use middleware::Middleware;
 pub struct BodyReader<T>;
 
 impl<T: Decodable + 'static> Middleware for BodyReader<T> {
-    fn before(&self, req: &mut Request) -> Result<(), Box<Error>> {
+    fn before(&self, req: &mut Request) -> Result<(), Box<Error+Send>> {
         let json: T = try!(decode::<T>(req.body()));
 
         req.mut_extensions().insert(json);
@@ -26,10 +26,10 @@ impl<T: Decodable + 'static> Middleware for BodyReader<T> {
     }
 }
 
-fn decode<T: Decodable>(reader: &mut Reader) -> Result<T, Box<Error>> {
-    let j = try!(Json::from_reader(reader).map_err(|e| Box::new(e) as Box<Error>));
+fn decode<T: Decodable>(reader: &mut Reader) -> Result<T, Box<Error+Send>> {
+    let j = try!(Json::from_reader(reader).map_err(|e| Box::new(e) as Box<Error+Send>));
     let mut decoder = json::Decoder::new(j);
-    Decodable::decode(&mut decoder).map_err(|e| Box::new(e) as Box<Error>)
+    Decodable::decode(&mut decoder).map_err(|e| Box::new(e) as Box<Error+Send>)
 }
 
 pub fn json_params<'a, T: Decodable + 'static>(req: &'a Request) -> Option<&'a T> {
@@ -56,7 +56,7 @@ mod tests {
         location: String
     }
 
-    fn handler(req: &mut Request) -> Result<Response, Box<Error>> {
+    fn handler(req: &mut Request) -> Result<Response, Box<Error+Send>> {
         let person = json_params::<Person>(req);
         let out = person.map(|p| json::encode(p)).expect("No JSON");
 
