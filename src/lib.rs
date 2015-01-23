@@ -58,7 +58,7 @@ mod tests {
 
     fn handler(req: &mut Request) -> Result<Response, Box<Error+Send>> {
         let person = json_params::<Person>(req);
-        let out = person.map(|p| json::encode(p)).expect("No JSON");
+        let out = person.map(|p| json::encode(p).unwrap()).expect("No JSON");
 
         Ok(Response {
             status: (200, "OK"),
