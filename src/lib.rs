@@ -44,7 +44,7 @@ mod tests {
 
     use std::collections::HashMap;
     use std::error::Error;
-    use std::io::MemReader;
+    use std::old_io::MemReader;
     use rustc_serialize::json;
 
     use conduit::{Request, Response, Handler, Method};
