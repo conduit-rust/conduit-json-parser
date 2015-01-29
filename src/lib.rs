@@ -1,5 +1,5 @@
+#![cfg_attr(test, feature(collections, io, core))]
 #![cfg_attr(test, deny(warnings))]
-#![cfg_attr(test, allow(unstable))]
 
 extern crate "rustc-serialize" as rustc_serialize;
 
