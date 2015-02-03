@@ -1,4 +1,4 @@
-#![cfg_attr(test, feature(collections, io, core))]
+#![cfg_attr(test, feature(io))]
 #![cfg_attr(test, deny(warnings))]
 
 extern crate "rustc-serialize" as rustc_serialize;
@@ -50,7 +50,7 @@ mod tests {
     use conduit::{Request, Response, Handler, Method};
     use middleware::MiddlewareBuilder;
 
-    #[derive(PartialEq, RustcDecodable, RustcEncodable, Show)]
+    #[derive(PartialEq, RustcDecodable, RustcEncodable, Debug)]
     struct Person {
         name: String,
         location: String
