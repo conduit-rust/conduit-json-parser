@@ -43,8 +43,7 @@ mod tests {
     use {json_params, BodyReader};
 
     use std::collections::HashMap;
-    use std::error::Error;
-    use std::old_io::MemReader;
+    use std::old_io::{MemReader, IoError};
     use rustc_serialize::json;
 
     use conduit::{Request, Response, Handler, Method};
@@ -56,7 +55,7 @@ mod tests {
         location: String
     }
 
-    fn handler(req: &mut Request) -> Result<Response, Box<Error+Send>> {
+    fn handler(req: &mut Request) -> Result<Response, IoError> {
         let person = json_params::<Person>(req);
         let out = person.map(|p| json::encode(p).unwrap()).expect("No JSON");
 
