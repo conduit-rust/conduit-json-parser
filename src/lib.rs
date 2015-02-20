@@ -8,6 +8,7 @@ extern crate "conduit-middleware" as middleware;
 extern crate "conduit-utils" as utils;
 
 use std::error::Error;
+use std::marker;
 use rustc_serialize::Decodable;
 use rustc_serialize::json::{self, Json};
 
@@ -15,7 +16,15 @@ use conduit::Request;
 use utils::RequestDelegator;
 use middleware::Middleware;
 
-pub struct BodyReader<T>;
+pub struct BodyReader<T> {
+    _marker: marker::PhantomData<fn() -> T>,
+}
+
+impl<T: Decodable + 'static> BodyReader<T> {
+    pub fn new() -> BodyReader<T> {
+        BodyReader { _marker: marker::PhantomData }
+    }
+}
 
 impl<T: Decodable + 'static> Middleware for BodyReader<T> {
     fn before(&self, req: &mut Request) -> Result<(), Box<Error+Send>> {
@@ -72,7 +81,7 @@ mod tests {
         req.with_body(br#"{ "name": "Alex Crichton", "location": "San Francisco" }"#);
 
         let mut middleware = MiddlewareBuilder::new(handler);
-        middleware.add(BodyReader::<Person>);
+        middleware.add(BodyReader::<Person>::new());
 
         let mut res = middleware.call(&mut req).ok().expect("No response");
         let person = super::decode::<Person>(&mut *res.body).ok().expect("No JSON response");
