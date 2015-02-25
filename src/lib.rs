@@ -1,4 +1,4 @@
-#![feature(core, old_io)]
+#![feature(core, io)]
 #![cfg_attr(test, deny(warnings))]
 
 extern crate "rustc-serialize" as rustc_serialize;
@@ -8,6 +8,7 @@ extern crate "conduit-middleware" as middleware;
 extern crate "conduit-utils" as utils;
 
 use std::error::Error;
+use std::io::prelude::*;
 use std::marker;
 use rustc_serialize::Decodable;
 use rustc_serialize::json::{self, Json};
@@ -35,7 +36,7 @@ impl<T: Decodable + 'static> Middleware for BodyReader<T> {
     }
 }
 
-fn decode<T: Decodable>(reader: &mut Reader) -> Result<T, Box<Error+Send>> {
+fn decode<T: Decodable>(reader: &mut Read) -> Result<T, Box<Error+Send>> {
     let j = try!(Json::from_reader(reader).map_err(|e| Box::new(e) as Box<Error+Send>));
     let mut decoder = json::Decoder::new(j);
     Decodable::decode(&mut decoder).map_err(|e| Box::new(e) as Box<Error+Send>)
@@ -52,7 +53,7 @@ mod tests {
     use {json_params, BodyReader};
 
     use std::collections::HashMap;
-    use std::old_io::{MemReader, IoError};
+    use std::io::{self, Cursor};
     use rustc_serialize::json;
 
     use conduit::{Request, Response, Handler, Method};
@@ -64,14 +65,14 @@ mod tests {
         location: String
     }
 
-    fn handler(req: &mut Request) -> Result<Response, IoError> {
+    fn handler(req: &mut Request) -> io::Result<Response> {
         let person = json_params::<Person>(req);
         let out = person.map(|p| json::encode(p).unwrap()).expect("No JSON");
 
         Ok(Response {
             status: (200, "OK"),
             headers: HashMap::new(),
-            body: Box::new(MemReader::new(out.into_bytes()))
+            body: Box::new(Cursor::new(out.into_bytes()))
         })
     }
 
