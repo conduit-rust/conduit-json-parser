@@ -1,4 +1,4 @@
-#![feature(core, io)]
+#![feature(core)]
 #![cfg_attr(test, deny(warnings))]
 
 extern crate "rustc-serialize" as rustc_serialize;
