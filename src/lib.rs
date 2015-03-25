@@ -1,11 +1,10 @@
-#![feature(core)]
 #![cfg_attr(test, deny(warnings))]
 
-extern crate "rustc-serialize" as rustc_serialize;
+extern crate rustc_serialize;
 
 extern crate conduit;
-extern crate "conduit-middleware" as middleware;
-extern crate "conduit-utils" as utils;
+extern crate conduit_middleware as middleware;
+extern crate conduit_utils as utils;
 
 use std::error::Error;
 use std::io::prelude::*;
@@ -48,7 +47,7 @@ pub fn json_params<'a, T: Decodable + 'static>(req: &'a Request) -> Option<&'a T
 
 #[cfg(test)]
 mod tests {
-    extern crate "conduit-test" as conduit_test;
+    extern crate conduit_test;
 
     use {json_params, BodyReader};
 
