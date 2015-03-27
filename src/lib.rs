@@ -35,6 +35,7 @@ impl<T: Decodable + 'static> Middleware for BodyReader<T> {
     }
 }
 
+#[allow(trivial_casts)]
 fn decode<T: Decodable>(reader: &mut Read) -> Result<T, Box<Error+Send>> {
     let j = try!(Json::from_reader(reader).map_err(|e| Box::new(e) as Box<Error+Send>));
     let mut decoder = json::Decoder::new(j);
