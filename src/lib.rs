@@ -6,6 +6,7 @@ extern crate conduit;
 extern crate conduit_middleware as middleware;
 extern crate conduit_utils as utils;
 
+use std::any::Any;
 use std::error::Error;
 use std::io::prelude::*;
 use std::marker;
@@ -20,13 +21,13 @@ pub struct BodyReader<T> {
     _marker: marker::PhantomData<fn() -> T>,
 }
 
-impl<T: Decodable + 'static> BodyReader<T> {
+impl<T: Decodable + Any> BodyReader<T> {
     pub fn new() -> BodyReader<T> {
         BodyReader { _marker: marker::PhantomData }
     }
 }
 
-impl<T: Decodable + 'static> Middleware for BodyReader<T> {
+impl<T: Decodable + Any> Middleware for BodyReader<T> {
     fn before(&self, req: &mut Request) -> Result<(), Box<Error+Send>> {
         let json: T = try!(decode::<T>(req.body()));
 
@@ -42,7 +43,7 @@ fn decode<T: Decodable>(reader: &mut Read) -> Result<T, Box<Error+Send>> {
     Decodable::decode(&mut decoder).map_err(|e| Box::new(e) as Box<Error+Send>)
 }
 
-pub fn json_params<'a, T: Decodable + 'static>(req: &'a Request) -> Option<&'a T> {
+pub fn json_params<'a, T: Decodable + Any>(req: &'a Request) -> Option<&'a T> {
     req.extensions().find::<T>()
 }
 
