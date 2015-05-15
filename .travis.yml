@@ -1,12 +1,21 @@
 language: rust
+rust:
+  - 1.0.0
+  - beta
+  - nightly
+sudo: false
 script:
-- cargo build --verbose
-- cargo test --verbose
-- cargo doc
-after_success: ! '[ $TRAVIS_BRANCH = master ] && [ $TRAVIS_PULL_REQUEST = false ]
-  && echo ''<meta http-equiv=refresh content=0;url=conduit-json-parser/index.html>''
-  > target/doc/index.html && sudo pip install ghp-import && ghp-import -n target/doc
-  && git push -fq https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages '
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo doc
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  [ $TRAVIS_RUST_VERSION = nightly ] &&
+  echo '<meta http-equiv=refresh content=0;url=conduit-json-parser/index.html>' > target/doc/index.html &&
+  pip install ghp-import --user $USER &&
+  $HOME/.local/bin/ghp-import -n target/doc &&
+  git push -qf https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
 env:
   global:
     secure: LZP3/O/eQdZu253X0nqcACHaV3DjfPWKv6pai9PE9GRChW1SHGOyES8TCSjDvET+iF9Sq79b0PHsW4oIxEdqn21bYUVq9i+gb1PaVvqSUa+HvcKdS3OrK4JAr1qA4rwnxotW3vOUEBAXcVEIvET0Wc2CdYQt32M9TiUbQCesX4U=
