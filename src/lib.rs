@@ -14,7 +14,6 @@ use rustc_serialize::Decodable;
 use rustc_serialize::json::{self, Json};
 
 use conduit::Request;
-use utils::RequestDelegator;
 use middleware::Middleware;
 
 pub struct BodyReader<T> {
