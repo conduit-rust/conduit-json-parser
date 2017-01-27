@@ -85,7 +85,9 @@ mod tests {
         middleware.add(BodyReader::<Person>::new());
 
         let mut res = middleware.call(&mut req).ok().expect("No response");
-        let person = super::decode::<Person>(&mut *res.body).ok().expect("No JSON response");
+        let mut body = Vec::new();
+        res.body.write_body(&mut body).unwrap();
+        let person = super::decode::<Person>(&mut &body[..]).ok().expect("No JSON response");
         assert_eq!(person, Person {
             name: "Alex Crichton".to_string(),
             location: "San Francisco".to_string()
