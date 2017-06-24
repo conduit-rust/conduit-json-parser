@@ -1,19 +1,19 @@
 [package]
-
-name = "conduit-json-parser"
-version = "0.8.0"
-authors = ["wycats@gmail.com",
-           "Alex Crichton <alex@alexcrichton.com>"]
+authors = ["wycats@gmail.com", "Alex Crichton <alex@alexcrichton.com>"]
 description = "Middleware to parse incoming JSON requests for conduit"
-repository = "https://github.com/conduit-rust/conduit-json-parser"
 license = "MIT"
+name = "conduit-json-parser"
+repository = "https://github.com/conduit-rust/conduit-json-parser"
+version = "0.8.0"
 
 [dependencies]
 conduit = "0.8"
 conduit-middleware = "0.8"
 conduit-utils = "0.8"
 semver = "0.5.0"
-rustc-serialize = "0.3"
+serde = "1.0"
+serde_json = "1.0"
 
 [dev-dependencies]
 conduit-test = "0.8"
+serde_derive = "1.0"
