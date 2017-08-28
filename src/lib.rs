@@ -9,7 +9,6 @@ extern crate serde_json;
 
 extern crate conduit;
 extern crate conduit_middleware as middleware;
-extern crate conduit_utils as utils;
 
 use std::any::Any;
 use std::error::Error;

@@ -9,7 +9,6 @@ version = "0.8.0"
 [dependencies]
 conduit = "0.8"
 conduit-middleware = "0.8"
-conduit-utils = "0.8"
 semver = "0.5.0"
 serde = "1.0"
 serde_json = "1.0"
